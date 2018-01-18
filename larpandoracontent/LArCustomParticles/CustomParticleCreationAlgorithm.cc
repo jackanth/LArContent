@@ -50,10 +50,45 @@ StatusCode CustomParticleCreationAlgorithm::Run()
     PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::CreateTemporaryListAndSetCurrent(*this, pTempVertexList,
         tempVertexListName));
 
-    // Loop over input Pfos
+    // Process the non-neutrinos first in case the neutrino particle creation is dependent on its daughters
+    PfoList nonNeutrinoPfoList;
+    PfoList neutrinoPfoList;
+    
+    for (const ParticleFlowObject *const pPfo : *pPfoList)
+    {
+        if (LArPfoHelper::IsNeutrino(pPfo))
+            neutrinoPfoList.push_back(pPfo);
+            
+        else
+            nonNeutrinoPfoList.push_back(pPfo);
+    }
+    
     PfoList pfoList(pPfoList->begin(), pPfoList->end());
     VertexList vertexList(pVertexList->begin(), pVertexList->end());
+    
+    this->ProcessPfoList(nonNeutrinoPfoList, vertexList);
+    this->ProcessPfoList(neutrinoPfoList, vertexList);
 
+    if (!pTempPfoList->empty())
+    {
+        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Pfo>(*this, m_pfoListName));
+        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Pfo>(*this, m_pfoListName));
+    }
+
+    if (!pTempVertexList->empty())
+    {
+        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Vertex>(*this, m_vertexListName));
+        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Vertex>(*this, m_vertexListName));
+    }
+
+    return STATUS_CODE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+void CustomParticleCreationAlgorithm::ProcessPfoList(const PfoList &pfoList, const VertexList &vertexList) const
+{
+    // Loop over input Pfos
     for (PfoList::const_iterator iter = pfoList.begin(), iterEnd = pfoList.end(); iter != iterEnd; ++iter)
     {
         const ParticleFlowObject *const pInputPfo = *iter;
@@ -100,20 +135,6 @@ StatusCode CustomParticleCreationAlgorithm::Run()
             PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SetPfoParentDaughterRelationship(*this, pOutputPfo, *dIter));
         }
     }
-
-    if (!pTempPfoList->empty())
-    {
-        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Pfo>(*this, m_pfoListName));
-        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Pfo>(*this, m_pfoListName));
-    }
-
-    if (!pTempVertexList->empty())
-    {
-        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Vertex>(*this, m_vertexListName));
-        PANDORA_THROW_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Vertex>(*this, m_vertexListName));
-    }
-
-    return STATUS_CODE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
