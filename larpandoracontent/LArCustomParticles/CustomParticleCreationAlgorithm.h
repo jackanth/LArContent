@@ -33,6 +33,14 @@ protected:
 private:
     std::string  m_pfoListName;      ///< The name of the input pfo list
     std::string  m_vertexListName;   ///< The name of the input vertex list
+    
+    /**
+     *  @brief  Create the specialised Pfos in a given list
+     *
+     *  @param  pfoList the pfo list
+     *  @param  vertexList the vertex list
+     */
+    void ProcessPfoList(const pandora::PfoList &pfoList, const pandora::VertexList &vertexList) const;
 };
 
 } // namespace lar_content
