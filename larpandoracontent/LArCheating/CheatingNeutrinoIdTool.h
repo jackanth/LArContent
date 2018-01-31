@@ -24,6 +24,16 @@ public:
 
 private:
     pandora::StatusCode ReadSettings(const pandora::TiXmlHandle xmlHandle);
+    
+    /**
+     *  @brief  ...
+     */
+    void GetNeutrinoWeight(const pandora::CaloHit *const pCaloHit, float &neutrinoWeight, float &totalWeight) const;
+    
+    /**
+     *  @brief  ...
+     */
+    void GetNeutrinoWeight(const pandora::PfoList *const pPfoList, float &neutrinoWeight, float &totalWeight) const;
 };
 
 } // namespace lar_content
