@@ -10,6 +10,7 @@
 
 #include "larpandoracontent/LArCheating/CheatingNeutrinoIdTool.h"
 
+#include "larpandoracontent/LArHelpers/LArClusterHelper.h"
 #include "larpandoracontent/LArHelpers/LArMCParticleHelper.h"
 #include "larpandoracontent/LArHelpers/LArPfoHelper.h"
 
