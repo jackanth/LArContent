@@ -14,6 +14,7 @@
 #include "larpandoracontent/LArHelpers/LArInteractionTypeHelper.h"
 #include "larpandoracontent/LArHelpers/LArMCParticleHelper.h"
 #include "larpandoracontent/LArHelpers/LArMvaHelper.h"
+#include "larpandoracontent/LArHelpers/LArSpaceChargeHelper.h"
 
 #include "larpandoracontent/LArVertex/EnergyKickFeatureTool.h"
 #include "larpandoracontent/LArVertex/LocalAsymmetryFeatureTool.h"
@@ -663,13 +664,16 @@ void SvmVertexSelectionAlgorithm::GetBestVertex(const VertexVector &vertexVector
 
     for (const Vertex *const pVertex : vertexVector)
     {
+        CartesianVector vertexPosition(pVertex->GetPosition());
+        const CartesianVector correctedVertexPosition(LArSpaceChargeHelper::GetSpaceChargeCorrectedPosition(vertexPosition));
+
         float mcVertexDr(std::numeric_limits<float>::max());
         for (const MCParticle *const pMCNeutrino : mcNeutrinoVector)
         {
             const CartesianVector mcNeutrinoPosition(pMCNeutrino->GetEndpoint().GetX() + m_mcVertexXCorrection, pMCNeutrino->GetEndpoint().GetY(),
                 pMCNeutrino->GetEndpoint().GetZ());
 
-            const float dr = (mcNeutrinoPosition - pVertex->GetPosition()).GetMagnitude();
+            const float dr = (mcNeutrinoPosition - correctedVertexPosition).GetMagnitude();
             if (dr < mcVertexDr)
                 mcVertexDr = dr;
         }
@@ -752,6 +756,8 @@ void SvmVertexSelectionAlgorithm::PopulateFinalVertexScoreList(const VertexFeatu
 
 StatusCode SvmVertexSelectionAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
 {
+    LArSpaceChargeHelper::Configure("SCEoffsets_MicroBooNE_E273.root");
+
     AlgorithmToolVector algorithmToolVector;
     PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, XmlHelper::ProcessAlgorithmToolList(*this, xmlHandle, "FeatureTools", algorithmToolVector));
 
