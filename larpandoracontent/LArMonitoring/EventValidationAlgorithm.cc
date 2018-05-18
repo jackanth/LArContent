@@ -11,6 +11,7 @@
 #include "larpandoracontent/LArHelpers/LArInteractionTypeHelper.h"
 #include "larpandoracontent/LArHelpers/LArMonitoringHelper.h"
 #include "larpandoracontent/LArHelpers/LArPfoHelper.h"
+#include "larpandoracontent/LArHelpers/LArSpaceChargeHelper.h"
 
 #include "larpandoracontent/LArMonitoring/EventValidationAlgorithm.h"
 
@@ -272,9 +273,12 @@ void EventValidationAlgorithm::ProcessOutput(const ValidationInfo &validationInf
                 try
                 {
                     const Vertex *const pRecoVertex(LArPfoHelper::GetVertex(isRecoNeutrinoFinalState ? LArPfoHelper::GetParentNeutrino(pfoToSharedHits.first) : pfoToSharedHits.first));
-                    recoVertexX = pRecoVertex->GetPosition().GetX();
-                    recoVertexY = pRecoVertex->GetPosition().GetY();
-                    recoVertexZ = pRecoVertex->GetPosition().GetZ();
+                    CartesianVector uncorrectedRecoVertexPosition(pRecoVertex->GetPosition());
+                    const CartesianVector correctedRecoVertexPosition(LArSpaceChargeHelper::GetSpaceChargeCorrectedPosition(uncorrectedRecoVertexPosition));
+
+                    recoVertexX = correctedRecoVertexPosition.GetX();
+                    recoVertexY = correctedRecoVertexPosition.GetY();
+                    recoVertexZ = correctedRecoVertexPosition.GetZ();
                 }
                 catch (const StatusCodeException &) {}
 #endif
@@ -661,6 +665,8 @@ StatusCode EventValidationAlgorithm::ReadSettings(const TiXmlHandle xmlHandle)
         PANDORA_RETURN_RESULT_IF_AND_IF(STATUS_CODE_SUCCESS, STATUS_CODE_NOT_FOUND, !=, XmlHelper::ReadValue(xmlHandle,
             "FileIdentifier", m_fileIdentifier));
     }
+
+    LArSpaceChargeHelper::Configure("SCEOffsets_MicroBooNE_E273.root");
 
     return STATUS_CODE_SUCCESS;
 }
