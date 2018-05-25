@@ -54,6 +54,7 @@ private:
      *  @brief  Increment the energy kick parameters for a given cluster
      *
      *  @param  pCluster address of the cluster
+     *  @param  clusterInputEnergy the cluster input energy
      *  @param  clusterDisplacement the cluster displacement
      *  @param  clusterDirection the cluster direction
      *  @param  totEnergyKick the total energy kick
@@ -61,8 +62,9 @@ private:
      *  @param  totHitKick the total hit kick
      *  @param  totHits the total number of hits
      */
-    void IncrementEnergyKickParameters(const pandora::Cluster *const pCluster, const pandora::CartesianVector &clusterDisplacement,
-        const pandora::CartesianVector &clusterDirection, float &totEnergyKick, float &totEnergy, float &totHitKick, unsigned int &totHits) const;
+    void IncrementEnergyKickParameters(const pandora::Cluster *const pCluster, const float clusterInputEnergy,
+        const pandora::CartesianVector &clusterDisplacement, const pandora::CartesianVector &clusterDirection, float &totEnergyKick,
+        float &totEnergy, float &totHitKick, unsigned int &totHits) const;
 
     float    m_rOffset;    ///< The r offset parameter in the energy score
     float    m_xOffset;    ///< The x offset parameter in the energy score

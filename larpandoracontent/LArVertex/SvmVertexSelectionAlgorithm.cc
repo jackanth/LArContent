@@ -354,7 +354,12 @@ void SvmVertexSelectionAlgorithm::IncrementShoweryParameters(const ClusterList &
         if (this->IsClusterShowerLike(pCluster))
             nShoweryHits += pCluster->GetNCaloHits();
 
-        eventEnergy += pCluster->GetElectromagneticEnergy();
+        CaloHitList clusterCaloHitList;
+        pCluster->GetOrderedCaloHitList().FillCaloHitList(clusterCaloHitList);
+
+        for (const CaloHit *const pCaloHit : clusterCaloHitList)
+            eventEnergy += pCaloHit->GetInputEnergy();
+
         nHits += pCluster->GetNCaloHits();
     }
 }
